@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-def adience_preparation(data_path="data"):
+def adience_preparation(data_path="data/"):
     fold_indices = []
     df = pd.DataFrame(columns=["gender", "path"])
     for i in range(5):
@@ -42,7 +42,17 @@ def adience_preparation(data_path="data"):
             f.write("\n".join([" ".join(i) for i in zip(val_image_paths, val_labels)]))
 
 
-def celeba_preparation(data_path="data"):
+def get_adience_num_images(val_fold, data_path="data/"):
+    with open(os.path.join(data_path, f"Adience/fold_{val_fold}"), "train.txt") as f:
+        num_train = len(f.readlines())
+
+    with open(os.path.join(data_path, f"Adience/fold_{val_fold}"), "val.txt") as f:
+        num_val = len(f.readlines())
+
+    return num_train, num_val
+
+
+def celeba_preparation(data_path="data/"):
     with open(os.path.join(data_path, "CelebA/list_attr_celeba.txt")) as f:
         lines = f.readlines()
         columns = ["filename"] + lines[1].split()
@@ -61,11 +71,21 @@ def celeba_preparation(data_path="data"):
     train_df = df[(df["partition"] == "0") | (df["partition"] == "1")]
     val_df = df[df["partition"] == "2"]
 
-    with open(os.path.join("data/CelebA", "train.txt"), "w") as f:
+    with open(os.path.join(data_path, "CelebA/train.txt"), "w") as f:
         f.write("\n".join([" ".join(i) for i in zip(train_df["filename"], train_df["Male"])]))
 
-    with open(os.path.join("data/CelebA", "test.txt"), "w") as f:
+    with open(os.path.join(data_path, "CelebA/test.txt"), "w") as f:
         f.write("\n".join([" ".join(i) for i in zip(val_df["filename"], val_df["Male"])]))
+
+
+def get_celeba_num_images(data_path="data/"):
+    with open(os.path.join(data_path, "CelebA/train.txt")) as f:
+        num_train = len(f.readlines())
+
+    with open(os.path.join(data_path, "CelebA/test.txt")) as f:
+        num_test = len(f.readlines())
+
+    return num_train, num_test
 
 
 if __name__ == "__main__":
