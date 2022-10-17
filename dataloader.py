@@ -48,7 +48,7 @@ def load_celeba_dataset():
     train_ds = tf.data.Dataset.from_generator(celeba_data_gen,
                                               output_types=(tf.float32, tf.int8),
                                               args=(True,))
-    val_ds = tf.data.Dataset.from_generator(celeba_data_gen(),
+    val_ds = tf.data.Dataset.from_generator(celeba_data_gen,
                                             output_types=(tf.float32, tf.int8),
                                             args=(False,))
 
