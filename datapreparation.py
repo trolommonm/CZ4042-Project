@@ -43,10 +43,10 @@ def adience_preparation(data_path="data/"):
 
 
 def get_adience_num_images(val_fold, data_path="data/"):
-    with open(os.path.join(data_path, f"Adience/fold_{val_fold}"), "train.txt") as f:
+    with open(os.path.join(data_path, f"Adience/fold_{val_fold}", "train.txt")) as f:
         num_train = len(f.readlines())
 
-    with open(os.path.join(data_path, f"Adience/fold_{val_fold}"), "val.txt") as f:
+    with open(os.path.join(data_path, f"Adience/fold_{val_fold}", "val.txt")) as f:
         num_val = len(f.readlines())
 
     return num_train, num_val
