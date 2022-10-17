@@ -1,6 +1,5 @@
 import os
 import tensorflow as tf
-from PIL import Image
 
 
 def adience_data_gen(val_fold, train=True):
@@ -12,18 +11,24 @@ def adience_data_gen(val_fold, train=True):
         for line in f:
             image_file = line.split(" ")[0]
             label = int(line.split(" ")[1])
-            pil_img = Image.open(os.path.join(data_path, "Adience/aligned", image_file))
-            img_array = tf.keras.utils.img_to_array(pil_img)
+            img = tf.io.read_file(os.path.join(data_path, "Adience/aligned", image_file))
+            img_tensor = tf.io.decode_image(img, channels=3, dtype=tf.dtypes.float32)
 
-            yield img_array, label
+            yield img_tensor, tf.expand_dims(label, axis=0)
 
 
 def load_adience_dataset(val_fold):
     train_ds = tf.data.Dataset.from_generator(adience_data_gen,
-                                              output_types=(tf.float32, tf.int8),
+                                              output_signature=(
+                                                  tf.TensorSpec(shape=(816, 816, 3), dtype=tf.float32),
+                                                  tf.TensorSpec(shape=(None,), dtype=tf.float32)
+                                              ),
                                               args=(val_fold, True))
     val_ds = tf.data.Dataset.from_generator(adience_data_gen,
-                                            output_types=(tf.float32, tf.int8),
+                                            output_signature=(
+                                                tf.TensorSpec(shape=(816, 816, 3), dtype=tf.float32),
+                                                tf.TensorSpec(shape=(None,), dtype=tf.float32)
+                                            ),
                                             args=(val_fold, False))
 
     return train_ds, val_ds
@@ -38,18 +43,24 @@ def celeba_data_gen(train=True):
         for line in f:
             image_file = line.split(" ")[0]
             label = int(line.split(" ")[1])
-            pil_img = Image.open(os.path.join(data_path, "CelebA/img_align_celeba", image_file))
-            img_array = tf.keras.utils.img_to_array(pil_img)
+            img = tf.io.read_file(os.path.join(data_path, "CelebA/img_align_celeba", image_file))
+            img_tensor = tf.io.decode_image(img)
 
-            yield img_array, label
+            yield img_tensor, tf.expand_dims(label, axis=0)
 
 
 def load_celeba_dataset():
     train_ds = tf.data.Dataset.from_generator(celeba_data_gen,
-                                              output_types=(tf.float32, tf.int8),
+                                              output_signature=(
+                                                  tf.TensorSpec(shape=(218, 178, 3), dtype=tf.float32),
+                                                  tf.TensorSpec(shape=(None,), dtype=tf.float32)
+                                              ),
                                               args=(True,))
     val_ds = tf.data.Dataset.from_generator(celeba_data_gen,
-                                            output_types=(tf.float32, tf.int8),
+                                            output_signature=(
+                                                tf.TensorSpec(shape=(218, 178, 3), dtype=tf.float32),
+                                                tf.TensorSpec(shape=(None,), dtype=tf.float32)
+                                            ),
                                             args=(False,))
 
     return train_ds, val_ds
