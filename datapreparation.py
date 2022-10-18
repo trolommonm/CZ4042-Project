@@ -4,7 +4,7 @@ import pandas as pd
 
 def adience_preparation(data_path="data/"):
     fold_indices = []
-    df = pd.DataFrame(columns=["gender", "path"])
+    df = pd.DataFrame(columns=["gender", "path", "fold"])
     for i in range(5):
         tmp_df = pd.read_csv(os.path.join(data_path, f"Adience/fold_{i}_data.txt"), delimiter="\t")
         # create a new column for the path to the image
@@ -14,32 +14,24 @@ def adience_preparation(data_path="data/"):
         tmp_df = tmp_df[["gender", "path"]][(tmp_df["gender"] != "u") & ~tmp_df["gender"].isna()]
         # convert gender into binary labels, i.e. 0 for female and 1 for male
         tmp_df["gender"] = tmp_df["gender"].apply(lambda x: {"f": "0", "m": "1"}[x])
+        # create the fold column
+        tmp_df["fold"] = i
 
         # concat df and tmp_df
         df = pd.concat([df, tmp_df], ignore_index=True)
 
-        if not fold_indices:
-            fold_indices.append((0, len(df) - 1))
-        else:
-            fold_indices.append((fold_indices[-1][1] + 1, len(df) - 1))
-
     for i in range(5):
-        val_df = df.loc[fold_indices[i][0]:fold_indices[i][1] + 1, :]
-        val_image_paths = val_df["path"].tolist()
-        val_labels = val_df["gender"].tolist()
-
-        train_df = df.loc[~df.index.isin(val_df.index), :]
-        train_image_paths = train_df["path"].tolist()
-        train_labels = train_df["gender"].tolist()
+        val_df = df[df["fold"] == i]
+        train_df = df[df["fold"] != i]
 
         fold_path = os.path.join(data_path, f"Adience/fold_{i}")
         os.makedirs(fold_path, exist_ok=True)
 
         with open(os.path.join(fold_path, "train.txt"), "w") as f:
-            f.write("\n".join([" ".join(i) for i in zip(train_image_paths, train_labels)]))
+            f.write("\n".join([" ".join(i) for i in zip(train_df["path"], train_df["gender"])]))
 
         with open(os.path.join(fold_path, "val.txt"), "w") as f:
-            f.write("\n".join([" ".join(i) for i in zip(val_image_paths, val_labels)]))
+            f.write("\n".join([" ".join(i) for i in zip(val_df["path"], val_df["gender"])]))
 
 
 def get_adience_num_images(val_fold, data_path="data/"):
