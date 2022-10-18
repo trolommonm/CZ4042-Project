@@ -44,7 +44,7 @@ def celeba_data_gen(train=True):
             image_file = line.split(" ")[0]
             label = int(line.split(" ")[1])
             img = tf.io.read_file(os.path.join(data_path, "CelebA/img_align_celeba", image_file))
-            img_tensor = tf.io.decode_image(img)
+            img_tensor = tf.io.decode_image(img, channels=3, dtype=tf.dtypes.float32)
 
             yield img_tensor, tf.expand_dims(label, axis=0)
 
