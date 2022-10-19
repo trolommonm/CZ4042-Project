@@ -28,7 +28,7 @@ def load_data(bs):
 
 
 def build_model():
-    input_shape = (224, 224)
+    input_shape = (224, 224, 3)
     inputs = keras.Input(shape=input_shape)
     x = keras.layers.RandomFlip('horizontal')(inputs)
     x = keras.layers.RandomRotation(0.2)(x)
