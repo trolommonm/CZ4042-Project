@@ -35,6 +35,7 @@ def build_model():
     x = keras.layers.RandomZoom(0.2, 0.2)(x)
     x = keras.layers.RandomTranslation(0.2, 0.2)(x)
     x = resnet18(x)
+    x = keras.layers.GlobalAveragePooling2D()(x)
     x = keras.layers.Dense(512, activation="relu")(x)
     x = keras.layers.Dense(512, activation="relu")(x)
     outputs = keras.layers.Dense(1, activation="sigmoid")(x)
