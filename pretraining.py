@@ -6,7 +6,7 @@ from dataloader import load_celeba_dataset
 from datapreparation import get_celeba_num_images
 from utils import CustomTensorBoard
 import argparse
-import datetime
+from datetime import datetime
 import os
 
 
@@ -47,7 +47,7 @@ def build_model():
 
 
 def main(args):
-    if args.mp:
+    if args.mixed_precision:
         tf.keras.mixed_precision.set_global_policy("mixed_float16")
 
     bs = args.bs
