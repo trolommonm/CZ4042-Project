@@ -8,6 +8,7 @@ from utils import CustomTensorBoard
 import argparse
 from datetime import datetime
 import os
+import json
 
 
 def load_data(bs):
@@ -60,9 +61,13 @@ def main(args):
 
     output_dir = os.path.join("./output/pretraining/", datetime.now().strftime("%Y%m%d-%H%M%S"))
     logs_dir = os.path.join(output_dir, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+
+    with open(os.path.join(output_dir, "args.json"), "w") as f:
+        f.write(json.dumps(args.__dict__))
 
     model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
-                                                                      "best_model_{epoch:02d}-{val_loss:.2f}"),
+                                                                      "best_model_{epoch:02d}-{val_accuracy:.2f}"),
                                                 save_weights_only=False,
                                                 monitor='val_accuracy',
                                                 mode='max',
