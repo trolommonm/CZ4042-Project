@@ -1,5 +1,5 @@
-from keras import backend as K
-from keras.callbacks import TensorBoard
+from tensorflow.keras import backend as K
+from tensorflow.keras.callbacks import TensorBoard
 
 
 class CustomTensorBoard(TensorBoard):
