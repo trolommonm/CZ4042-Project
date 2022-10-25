@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-from keras.callbacks import ModelCheckpoint, CSVLogger
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from utils import resnet18
 from dataloader import load_celeba_dataset
 from datapreparation import get_celeba_num_images
