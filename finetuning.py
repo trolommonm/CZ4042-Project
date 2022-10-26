@@ -54,7 +54,9 @@ def train(fold, args, output_dir):
     optimizer = keras.optimizers.Adam(lr=0.01)
     loss_fn = keras.losses.BinaryCrossentropy(from_logits=False)
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+    print("Warm up for 10 epochs...")
     model.fit(ad_train_ds, epochs=10, steps_per_epoch=ad_num_train // args.bs, validation_data=ad_val_ds)
+    print()
 
     # fine tuning
     for l in model.layers[:-26]:
@@ -74,6 +76,7 @@ def train(fold, args, output_dir):
     optimizer = keras.optimizers.Adam(lr=0.001)
     loss_fn = keras.losses.BinaryCrossentropy(from_logits=False)
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
+    print("Finetuning...")
     model.fit(ad_train_ds,
               epochs=100,
               steps_per_epoch=ad_num_train // args.bs,
