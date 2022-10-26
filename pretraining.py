@@ -37,7 +37,6 @@ def build_model():
     x = keras.layers.RandomRotation(0.2)(x)
     x = keras.layers.RandomZoom(0.2, 0.2)(x)
     x = keras.layers.RandomTranslation(0.2, 0.2)(x)
-    x = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)(x)
     x = resnet18(x)
     x = keras.layers.GlobalAveragePooling2D()(x)
     x = keras.layers.Dense(512, activation="relu")(x)
