@@ -93,5 +93,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Finetuning pretrained (with CelebA) model on Adience dataset')
     parser.add_argument("--model-path", help="path to the pretrained model (SavedModel format)")
+    parser.add_argument("-bs", type=int, default=128, help="batch size")
 
     main(parser.parse_args())
