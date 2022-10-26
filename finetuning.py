@@ -7,6 +7,7 @@ from utils import CustomTensorBoard
 import argparse
 from datetime import datetime
 import os
+import json
 
 tf.keras.mixed_precision.set_global_policy("mixed_float16")
 
@@ -91,6 +92,9 @@ def main(args):
         logs_dir = os.path.join(output_dir, "logs")
         os.makedirs(logs_dir, exist_ok=True)
         train(i, args, output_dir)
+
+    with open(os.path.join(output_dir, "args.json"), "w") as f:
+        f.write(json.dumps(args.__dict__))
 
 
 if __name__ == "__main__":
