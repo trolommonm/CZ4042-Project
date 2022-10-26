@@ -28,10 +28,9 @@ def load_data(fold, bs):
     train_ds, val_ds = load_adience_dataset(fold)
 
     # Scale the images tp [-1, 1]
-    normalization_layer = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)
-    train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-    val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-
+    # train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y), num_parallel_calls=tf.data.AUTOTUNE)
+    # val_ds = val_ds.map(lambda x, y: (normalization_layer(x), y), num_parallel_calls=tf.data.AUTOTUNE)
+    # 
     train_ds = train_ds.map(lambda x, y: (img_preprocessing(x), y), num_parallel_calls=tf.data.AUTOTUNE)
     val_ds = val_ds.map(lambda x, y: (img_preprocessing(x), y), num_parallel_calls=tf.data.AUTOTUNE)
 
@@ -50,7 +49,12 @@ def load_data(fold, bs):
 def build_model():
     input_shape = (RESIZE_HEIGHT, RESIZE_WIDTH, 3)
     inputs = keras.Input(shape=input_shape)
-    conv1 = keras.layers.Conv2D(96, [7, 7], [4, 4], activation='relu', padding='VALID')(inputs)
+    x = keras.layers.RandomFlip('horizontal')(inputs)
+    x = keras.layers.RandomRotation(0.2)(x)
+    x = keras.layers.RandomZoom(0.2, 0.2)(x)
+    x = keras.layers.RandomTranslation(0.2, 0.2)(x)
+    x = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)(x)
+    conv1 = keras.layers.Conv2D(96, [7, 7], [4, 4], activation='relu', padding='VALID')(x)
     pool1 = keras.layers.MaxPooling2D(3, 2, padding='VALID')(conv1)
     norm1 = tf.nn.local_response_normalization(pool1, 5, alpha=0.0001, beta=0.75)
     conv2 = keras.layers.Conv2D(256, [5, 5], [1, 1], activation='relu', padding='SAME')(norm1)
