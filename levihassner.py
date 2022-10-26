@@ -84,7 +84,7 @@ def train(fold, args, output_dir):
     csv_callback = CSVLogger(os.path.join(output_dir, "training.log"))
 
     loss_fn = keras.losses.BinaryCrossentropy()
-    optimizer = keras.optimizers.Adam(lr=args.lr)
+    optimizer = keras.optimizers.SGD(lr=args.lr)
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
     model.fit(train_ds,
               epochs=args.num_epochs,
