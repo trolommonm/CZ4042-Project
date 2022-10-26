@@ -40,7 +40,8 @@ def load_data(fold, bs):
                        .batch(bs, drop_remainder=True) \
                        .repeat() \
                        .prefetch(buffer_size=tf.data.AUTOTUNE)
-    val_ds = val_ds.batch(bs) \
+    val_ds = val_ds.cache() \
+                   .batch(bs) \
                    .prefetch(buffer_size=tf.data.AUTOTUNE)
 
     return train_ds, val_ds
