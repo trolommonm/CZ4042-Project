@@ -51,7 +51,7 @@ def train(fold, args, output_dir):
         l.trainable = False
     assert len([l for l in model.layers if l.trainable == True]) == 3
 
-    optimizer = keras.optimizers.Adam(lr=0.01)
+    optimizer = keras.optimizers.Adam(lr=args.warmup_lr)
     loss_fn = keras.losses.BinaryCrossentropy(from_logits=False)
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
     print("Warm up for 10 epochs...")
@@ -65,7 +65,7 @@ def train(fold, args, output_dir):
         l.trainable = True
 
     model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
-                                                                      "best_model_{epoch:02d}-{val_accuracy:.2f}"),
+                                                                      "best_model"),
                                                 save_weights_only=False,
                                                 monitor='val_accuracy',
                                                 mode='max',
@@ -73,7 +73,7 @@ def train(fold, args, output_dir):
     tensorboard_callback = CustomTensorBoard(log_dir=os.path.join(output_dir, "logs"))
     csv_callback = CSVLogger(os.path.join(output_dir, "training.log"))
 
-    optimizer = keras.optimizers.Adam(lr=0.001)
+    optimizer = keras.optimizers.Adam(lr=args.finetune_lr)
     loss_fn = keras.losses.BinaryCrossentropy(from_logits=False)
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
     print("Finetuning...")
@@ -97,5 +97,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Finetuning pretrained (with CelebA) model on Adience dataset')
     parser.add_argument("--model-path", help="path to the pretrained model (SavedModel format)")
     parser.add_argument("-bs", type=int, default=128, help="batch size")
+    parser.add_argument("--warmup-lr", type=float, default=0.01, help="learning rate for warm up phase")
+    parser.add_argument("--finetune-lr", type=float, default=0.001, help="learning rate for finetuning phase")
 
     main(parser.parse_args())
