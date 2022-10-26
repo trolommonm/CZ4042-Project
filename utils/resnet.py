@@ -49,7 +49,7 @@ def make_layer(x, planes, blocks, stride=1, name=None):
     return x
 
 
-def resnet(x, blocks_per_layer, ):
+def resnet(x, blocks_per_layer):
     x = layers.ZeroPadding2D(padding=3, name='conv1_pad')(x)
     x = layers.Conv2D(filters=64, kernel_size=7, strides=2, use_bias=False, kernel_initializer=kaiming_normal,
                       name='conv1')(x)
