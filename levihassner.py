@@ -14,8 +14,8 @@ import json
 import argparse
 import os
 
-RESIZE_HEIGHT = 256
-RESIZE_WIDTH = 256
+RESIZE_HEIGHT = 227
+RESIZE_WIDTH = 227
 
 
 # bs: batch_size
