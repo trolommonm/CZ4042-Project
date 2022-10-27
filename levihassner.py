@@ -49,12 +49,8 @@ def load_data(fold, bs):
 def build_model():
     input_shape = (RESIZE_HEIGHT, RESIZE_WIDTH, 3)
     inputs = keras.Input(shape=input_shape)
-    x = keras.layers.RandomFlip('horizontal')(inputs)
-    x = keras.layers.RandomRotation(0.2)(x)
-    x = keras.layers.RandomZoom(0.2, 0.2)(x)
-    x = keras.layers.RandomTranslation(0.2, 0.2)(x)
-    x = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)(x)
-    conv1 = keras.layers.Conv2D(96, [7, 7], [4, 4], activation='relu', padding='VALID')(x)
+    rescale = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)(inputs)
+    conv1 = keras.layers.Conv2D(96, [7, 7], [4, 4], activation='relu', padding='VALID')(rescale)
     pool1 = keras.layers.MaxPooling2D(3, 2, padding='VALID')(conv1)
     norm1 = tf.nn.local_response_normalization(pool1, 5, alpha=0.0001, beta=0.75)
     conv2 = keras.layers.Conv2D(256, [5, 5], [1, 1], activation='relu', padding='SAME')(norm1)
@@ -67,7 +63,7 @@ def build_model():
     drop1 = keras.layers.Dropout(0.5)(full1)
     full2 = keras.layers.Dense(512)(drop1)
     drop2 = keras.layers.Dropout(0.5)(full2)
-    outputs = keras.layers.Dense(1, activation="softmax")(drop2)
+    outputs = keras.layers.Dense(1, activation="sigmoid")(drop2)
     model = keras.Model(inputs, outputs)
 
     return model
@@ -112,8 +108,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Baseline Model Training using Adience dataset')
-    parser.add_argument("-lr", type=float, default=0.1, help="learning rate")
-    parser.add_argument("-bs", type=int, default=128, help="batch size")
+    parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
+    parser.add_argument("-bs", type=int, default=64, help="batch size")
     parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
 
     main(parser.parse_args())
