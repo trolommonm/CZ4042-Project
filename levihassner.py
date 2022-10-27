@@ -14,8 +14,8 @@ import json
 import argparse
 import os
 
-RESIZE_HEIGHT = 227
-RESIZE_WIDTH = 227
+RESIZE_HEIGHT = 256
+RESIZE_WIDTH = 256
 
 
 # bs: batch_size
@@ -46,34 +46,37 @@ def load_data(fold, bs):
     return train_ds, val_ds
 
 
-def build_model():
-    input_shape = (RESIZE_HEIGHT, RESIZE_WIDTH, 3)
-    inputs = keras.Input(shape=input_shape)
-    rescale = keras.layers.Rescaling(scale=1 / 127.5, offset=-1)(inputs)
-    conv1 = keras.layers.Conv2D(96, [7, 7], [4, 4], activation='relu', padding='VALID')(rescale)
-    pool1 = keras.layers.MaxPooling2D(3, 2, padding='VALID')(conv1)
-    norm1 = tf.nn.local_response_normalization(pool1, 5, alpha=0.0001, beta=0.75)
-    conv2 = keras.layers.Conv2D(256, [5, 5], [1, 1], activation='relu', padding='SAME')(norm1)
-    pool2 = keras.layers.MaxPooling2D(3, 2, padding='VALID')(conv2)
-    norm2 = tf.nn.local_response_normalization(pool2, 5, alpha=0.0001, beta=0.75)
-    conv3 = keras.layers.Conv2D(384, [3, 3], [1, 1], activation='relu', padding='SAME')(norm2)
-    pool3 = keras.layers.MaxPooling2D(3, 2, padding='VALID')(conv3)
-    flat = keras.layers.Flatten()(pool3)
-    full1 = keras.layers.Dense(512, activation='relu')(flat)
-    drop1 = keras.layers.Dropout(0.5)(full1)
-    full2 = keras.layers.Dense(512, activation='relu')(drop1)
-    drop2 = keras.layers.Dropout(0.5)(full2)
-    outputs = keras.layers.Dense(1, activation="sigmoid")(drop2)
-    model = keras.Model(inputs, outputs)
+def build_model(augment=False):
+    inputs = keras.Input(shape=(RESIZE_HEIGHT, RESIZE_WIDTH, 3))
+    x = inputs
+    if augment:
+        x = keras.layers.RandomFlip('horizontal')(x)
+        x = keras.layers.RandomRotation(0.2)(x)
+        x = keras.layers.RandomZoom(0.2, 0.2)(x)
+        x = keras.layers.RandomTranslation(0.2, 0.2)(x)
+    x = keras.layers.Conv2D(96, (7, 7), strides=(4, 4), padding="valid", activation="relu")(x)
+    x = keras.layers.MaxPool2D((3, 3), strides=(2, 2), padding="valid")(x)
+    x = tf.nn.local_response_normalization(x, alpha=0.0001, beta=0.75)
+    x = keras.layers.Conv2D(256, (5, 5), strides=(1, 1), padding="same", activation="relu")(x)
+    x = keras.layers.MaxPool2D((3, 3), strides=(2, 2), padding="valid")(x)
+    x = tf.nn.local_response_normalization(x, alpha=0.0001, beta=0.75)
+    x = keras.layers.Conv2D(384, (3, 3), strides=(1, 1), padding="same", activation="relu")(x)
+    x = keras.layers.MaxPool2D((3, 3), strides=(2, 2), padding="valid")(x)
+    x = keras.layers.Flatten()(x)
+    x = keras.layers.Dense(512, activation="relu")(x)
+    x = keras.layers.Dropout(0.5)(x)
+    x = keras.layers.Dense(512, activation="relu")(x)
+    x = keras.layers.Dropout(0.5)(x)
+    outputs = keras.layers.Dense(1, activation="sigmoid")(x)
 
-    return model
+    return keras.Model(inputs, outputs)
 
 
 def train(fold, args, output_dir):
     train_ds, val_ds = load_data(fold, args.bs)
     num_train, num_val = get_adience_num_images(fold)
 
-    model = build_model()
+    model = build_model(args.augment)
 
     model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
                                                                       "best_model"),
@@ -108,8 +111,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Baseline Model Training using Adience dataset')
-    parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
+    parser.add_argument("-lr", type=float, default=0.05, help="learning rate")
     parser.add_argument("-bs", type=int, default=64, help="batch size")
     parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
+    parser.add_argument("--augment", type=bool, default=False, help="apply image augmentation")
 
     main(parser.parse_args())
