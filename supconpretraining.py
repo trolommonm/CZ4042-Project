@@ -94,12 +94,6 @@ def main(args):
     with open(os.path.join(output_dir, "args.json"), "w") as f:
         f.write(json.dumps(args.__dict__))
 
-    model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
-                                                                      "best_model_{epoch:02d}-{val_accuracy:.2f}"),
-                                                save_weights_only=False,
-                                                monitor='val_accuracy',
-                                                mode='max',
-                                                save_best_only=True)
     tensorboard_callback = CustomTensorBoard(log_dir=logs_dir)
     csv_callback = CSVLogger(os.path.join(output_dir, "training.log"))
 
@@ -110,7 +104,8 @@ def main(args):
     encoder_proj_head.fit(train_ds,
                           epochs=100,
                           steps_per_epoch=num_train // args.bs,
-                          callbacks=[model_checkpoint_callback, tensorboard_callback, csv_callback])
+                          callbacks=[tensorboard_callback, csv_callback])
+    encoder_proj_head.save(os.path.join(output_dir, "supcon_pretrained_model"))
 
 
 if __name__ == "__main__":
