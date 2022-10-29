@@ -11,6 +11,8 @@ import json
 from datetime import datetime
 
 
+IMG_SIZE = (100, 100)
+
 def create_augmentation():
     data_augmentation = keras.Sequential(
         [
@@ -27,7 +29,7 @@ def create_augmentation():
 
 def load_data(bs):
     def img_preprocessing(x):
-        x = tf.image.resize(x, size=(224, 224))
+        x = tf.image.resize(x, size=IMG_SIZE)
         return x
 
     train_ds, val_ds = load_celeba_dataset()
@@ -49,7 +51,7 @@ def create_encoder(augmentation):
     #     include_top=False, weights=None, input_shape=input_shape, pooling="avg"
     # )
 
-    inputs = keras.Input(shape=(224, 224, 3))
+    inputs = keras.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3))
     x = augmentation(inputs)
     x = resnet18(x)
     outputs = layers.GlobalAveragePooling2D()(x)
@@ -60,7 +62,7 @@ def create_encoder(augmentation):
 
 
 def add_projection_head(encoder):
-    inputs = keras.Input(shape=(224, 224, 3))
+    inputs = keras.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3))
     features = encoder(inputs)
     outputs = layers.Dense(128, activation="relu")(features)
     model = keras.Model(inputs=inputs, outputs=outputs)
