@@ -69,7 +69,7 @@ def add_projection_head(encoder):
 
 
 def main(args):
-    if args.mp:
+    if args.mixed_precision:
         tf.keras.mixed_precision.set_global_policy("mixed_float16")
 
     train_ds, val_ds = load_data(args.bs)
