@@ -11,10 +11,12 @@ import json
 
 tf.keras.mixed_precision.set_global_policy("mixed_float16")
 
+IMG_SIZE = (150, 150)
+
 
 def load_data(fold, bs):
     def img_preprocessing(x):
-        x = tf.image.resize(x, size=(224, 224))
+        x = tf.image.resize(x, size=IMG_SIZE)
 
         return x
 
@@ -64,6 +66,7 @@ def train(fold, args, output_dir):
         l.trainable = False
     for l in model.layers[-26:]:
         l.trainable = True
+    assert len([l for l in model.layers if l.trainable == True]) == 26
 
     model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
                                                                       "best_model"),

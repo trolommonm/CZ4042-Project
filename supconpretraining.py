@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 
-IMG_SIZE = (100, 100)
+IMG_SIZE = (150, 150)
 
 def create_augmentation():
     data_augmentation = keras.Sequential(

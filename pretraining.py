@@ -10,10 +10,12 @@ from datetime import datetime
 import os
 import json
 
+IMG_SIZE = (150, 150)
+
 
 def load_data(bs):
     def img_preprocessing(x):
-        x = tf.image.resize(x, size=(224, 224))
+        x = tf.image.resize(x, size=IMG_SIZE)
         return x
 
     train_ds, val_ds = load_celeba_dataset()
@@ -31,7 +33,7 @@ def load_data(bs):
 
 
 def build_model():
-    input_shape = (224, 224, 3)
+    input_shape = (IMG_SIZE[0], IMG_SIZE[1], 3)
     inputs = keras.Input(shape=input_shape)
     x = keras.layers.RandomFlip('horizontal')(inputs)
     x = keras.layers.RandomRotation(0.2)(x)
