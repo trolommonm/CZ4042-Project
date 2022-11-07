@@ -68,8 +68,7 @@ def main(args):
     with open(os.path.join(output_dir, "args.json"), "w") as f:
         f.write(json.dumps(args.__dict__))
 
-    model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir,
-                                                                      "best_model_{epoch:02d}-{val_accuracy:.2f}"),
+    model_checkpoint_callback = ModelCheckpoint(filepath=os.path.join(output_dir, "best_model"),
                                                 save_weights_only=False,
                                                 monitor='val_accuracy',
                                                 mode='max',
