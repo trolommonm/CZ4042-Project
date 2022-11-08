@@ -2,10 +2,9 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-from utils import resnet18, SupervisedContrastiveLoss, CustomTensorBoard
+from utils import resnet18, SupervisedContrastiveLoss, CustomTensorBoard, CosineAnnealWithWamrup
 from dataloader import load_celeba_dataset
 from datapreparation import get_celeba_num_images
-from utils import CosineAnnealWithWarmup
 import argparse
 import os
 import json
@@ -92,7 +91,7 @@ def main(args):
 
     tensorboard_callback = CustomTensorBoard(log_dir=logs_dir)
     csv_callback = CSVLogger(os.path.join(output_dir, "training.log"))
-    lr_scheduler = CosineAnnealWithWarmup(learning_rate_base=args.lr,
+    lr_scheduler = CosineAnnealWithWamrup(learning_rate_base=args.lr,
                                           total_steps=args.num_epochs * num_train // args.bs,
                                           warmup_learning_rate=0.0,
                                           warmup_steps=args.warmup_epochs * num_train // args.bs,
