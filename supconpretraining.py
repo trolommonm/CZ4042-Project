@@ -109,7 +109,7 @@ def main(args):
         loss=SupervisedContrastiveLoss(args.temperature),
     )
     encoder_proj_head.fit(train_ds,
-                          epochs=100,
+                          epochs=args.num_epochs,
                           steps_per_epoch=num_train // args.bs,
                           callbacks=[lr_scheduler, save_best, save_period, tensorboard_callback, csv_callback])
 
