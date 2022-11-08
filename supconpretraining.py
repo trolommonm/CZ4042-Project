@@ -5,6 +5,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from utils import resnet18, SupervisedContrastiveLoss, CustomTensorBoard
 from dataloader import load_celeba_dataset
 from datapreparation import get_celeba_num_images
+from utils import CosineAnnealWithWarmup
 import argparse
 import os
 import json
@@ -47,15 +48,10 @@ def load_data(bs):
 
 
 def create_encoder(augmentation):
-    # resnet = keras.applications.ResNet50V2(
-    #     include_top=False, weights=None, input_shape=input_shape, pooling="avg"
-    # )
-
     inputs = keras.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3))
     x = augmentation(inputs)
     x = resnet18(x)
     outputs = layers.GlobalAveragePooling2D()(x)
-    # outputs = resnet(augmented)
     model = keras.Model(inputs=inputs, outputs=outputs)
 
     return model
@@ -96,6 +92,18 @@ def main(args):
 
     tensorboard_callback = CustomTensorBoard(log_dir=logs_dir)
     csv_callback = CSVLogger(os.path.join(output_dir, "training.log"))
+    lr_scheduler = CosineAnnealWithWarmup(learning_rate_base=args.lr,
+                                          total_steps=args.num_epochs * num_train // args.bs,
+                                          warmup_learning_rate=0.0,
+                                          warmup_steps=args.warmup_epochs * num_train // args.bs,
+                                          hold_base_rate_steps=0)
+    save_best = ModelCheckpoint(filepath=os.path.join(output_dir, "best_model"),
+                                save_weights_only=False,
+                                monitor='loss',
+                                mode='max',
+                                save_best_only=True)
+    save_period = ModelCheckpoint(filepath=os.path.join(output_dir, "supcon_model_{epoch:02d}_{loss:.2f}"),
+                                  period=200)
 
     encoder_proj_head.compile(
         optimizer=keras.optimizers.SGD(args.lr, momentum=0.9),
@@ -104,15 +112,15 @@ def main(args):
     encoder_proj_head.fit(train_ds,
                           epochs=100,
                           steps_per_epoch=num_train // args.bs,
-                          callbacks=[tensorboard_callback, csv_callback])
-    encoder_proj_head.save(os.path.join(output_dir, "supcon_pretrained_model"))
+                          callbacks=[lr_scheduler, save_best, save_period, tensorboard_callback, csv_callback])
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Pretraining on CelebA dataset using Supervised Contrastive Learning')
     parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
     parser.add_argument("-bs", type=int, default=1024, help="batch size")
-    parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
+    parser.add_argument("--num-epochs", type=int, default=100, help="total number of epochs")
+    parser.add_argument("--warmup-epochs", type=int, default=10, help="number of epochs for warm up")
     parser.add_argument("--temperature", type=float, default=0.05, help="temperature for the SupCon loss")
     parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
 
