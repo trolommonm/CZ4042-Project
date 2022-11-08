@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-from utils import resnet18, SupervisedContrastiveLoss, CustomTensorBoard, CosineAnnealWithWamrup
+from utils import resnet18, SupervisedContrastiveLoss, CustomTensorBoard, CosineAnnealWithWamrup, WeightsSaver
 from dataloader import load_celeba_dataset
 from datapreparation import get_celeba_num_images
 import argparse
@@ -101,8 +101,8 @@ def main(args):
                                 monitor='loss',
                                 mode='max',
                                 save_best_only=True)
-    save_period = ModelCheckpoint(filepath=os.path.join(output_dir, "supcon_model_{epoch:02d}_{loss:.2f}"),
-                                  period=200)
+    save_period = WeightsSaver(filepath=os.path.join(output_dir, "supcon_model_{epoch:02d}_{loss:.2f}"),
+                               frequency=200)
 
     encoder_proj_head.compile(
         optimizer=keras.optimizers.SGD(args.lr, momentum=0.9),
