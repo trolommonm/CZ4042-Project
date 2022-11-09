@@ -111,3 +111,5 @@ if __name__ == "__main__":
     parser.add_argument("-bs", type=int, default=128, help="batch size")
     parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
     parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
+
+    main(parser.parse_args())
