@@ -112,7 +112,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-path", help="path to the pretrained encoder (SavedModel format)")
     parser.add_argument("-bs", type=int, default=128, help="batch size")
     parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
-    parser.add_argument("--num-warmup-epochs", type=int, default=100, help="number of warmup epochs")
+    parser.add_argument("--num-warmup-epochs", type=int, default=10, help="number of warmup epochs")
     parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
     parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
 
