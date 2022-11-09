@@ -82,7 +82,7 @@ def train(fold, args, output_dir):
     model.compile(optimizer=optimizer, loss=loss_fn, metrics=["accuracy"])
     print("Finetuning...")
     model.fit(ad_train_ds,
-              epochs=100,
+              epochs=args.num_epochs,
               steps_per_epoch=ad_num_train // args.bs,
               validation_data=ad_val_ds,
               callbacks=[model_checkpoint_callback, tensorboard_callback, csv_callback])
@@ -104,6 +104,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Finetuning pretrained (with CelebA) model on Adience dataset')
     parser.add_argument("--model-path", help="path to the pretrained model (SavedModel format)")
     parser.add_argument("-bs", type=int, default=128, help="batch size")
+    parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
     parser.add_argument("--warmup-lr", type=float, default=0.01, help="learning rate for warm up phase")
     parser.add_argument("--finetune-lr", type=float, default=0.001, help="learning rate for finetuning phase")
 

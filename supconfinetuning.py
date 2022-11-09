@@ -36,7 +36,7 @@ def load_data(fold, bs):
 
 
 def create_classifier(encoder, trainable=True):
-    hidden_units = 256
+    hidden_units = 512
     dropout_rate = 0.5
 
     for layer in encoder.layers:
@@ -44,9 +44,9 @@ def create_classifier(encoder, trainable=True):
 
     inputs = keras.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3))
     features = encoder(inputs)
-    features = layers.Dropout(dropout_rate)(features)
+    # features = layers.Dropout(dropout_rate)(features)
     features = layers.Dense(hidden_units, activation="relu")(features)
-    features = layers.Dropout(dropout_rate)(features)
+    # features = layers.Dropout(dropout_rate)(features)
     outputs = layers.Dense(1, activation="sigmoid")(features)
 
     model = keras.Model(inputs=inputs, outputs=outputs)
@@ -55,7 +55,7 @@ def create_classifier(encoder, trainable=True):
 
 
 def train(fold, args, output_dir):
-    ad_train_ds, ad_val_ds = load_adience_dataset(fold)
+    ad_train_ds, ad_val_ds = load_data(fold, args.bs)
     ad_num_train, ad_num_val = get_adience_num_images(fold)
 
     # remove the projection head from the pre-trained model and only keep the encoder
@@ -83,14 +83,15 @@ def train(fold, args, output_dir):
     lr_scheduler = CosineAnnealWithWamrup(learning_rate_base=args.lr,
                                           total_steps=args.num_epochs * ad_num_train // args.bs,
                                           warmup_learning_rate=0.0,
-                                          warmup_steps=args.warmup_epochs * ad_num_train // args.bs,
+                                          warmup_steps=args.num_warmup_epochs * ad_num_train // args.bs,
                                           hold_base_rate_steps=0)
 
     classifier.fit(ad_train_ds,
-                   epochs=100,
+                   epochs=args.num_epochs,
                    steps_per_epoch=ad_num_train // args.bs,
                    validation_data=ad_val_ds,
                    callbacks=[model_checkpoint_callback, tensorboard_callback, csv_callback, lr_scheduler])
+
 
 def main(args):
     datetime_now = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -109,6 +110,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Finetuning on Adience dataset with pretrained encoder on CelebA')
     parser.add_argument("--model-path", help="path to the pretrained encoder (SavedModel format)")
     parser.add_argument("-bs", type=int, default=128, help="batch size")
+    parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
+    parser.add_argument("--num-warmup-epochs", type=int, default=100, help="number of warmup epochs")
     parser.add_argument("-lr", type=float, default=0.01, help="learning rate")
     parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
 
