@@ -4,6 +4,9 @@ import tensorflow_addons as tfa
 
 
 class SupervisedContrastiveLoss(keras.losses.Loss):
+    """
+    Implements the SupCon loss. Refer to Section 4.3.2 for more information.
+    """
     def __init__(self, temperature=1, name=None):
         super(SupervisedContrastiveLoss, self).__init__(name=name)
         self.temperature = temperature

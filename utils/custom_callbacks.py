@@ -22,13 +22,12 @@ class WeightsSaver(ModelCheckpoint):
 
     def on_epoch_end(self, epoch, logs=None):
         self.epochs_since_last_save += 1
-        # pylint: disable=protected-access
         if self.epochs_since_last_save % self.frequency == 0:
             self._save_model(epoch=epoch, batch=None, logs=logs)
 
 
 class CustomTensorBoard(TensorBoard):
-    # add other arguments to __init__ if you need
+
     def __init__(self, log_dir, **kwargs):
         super().__init__(log_dir=log_dir, **kwargs)
 
