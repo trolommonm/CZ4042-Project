@@ -59,7 +59,7 @@ def train(fold, args, output_dir):
     ad_num_train, ad_num_val = get_adience_num_images(fold)
 
     # remove the projection head from the pre-trained model and only keep the encoder
-    pretrained_model = keras.models.load_model(args.model_path)
+    pretrained_model = keras.models.load_model(args.model_path, compile=False)
     inputs = keras.Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3))
     outputs = pretrained_model.layers[1](inputs)
     encoder = keras.Model(inputs=inputs, outputs=outputs)
