@@ -64,6 +64,7 @@ def train(fold, args, output_dir):
     outputs = pretrained_model.layers[1](inputs)
     encoder = keras.Model(inputs=inputs, outputs=outputs)
 
+    # add a fully connected layer on top of the encoder and freeze the weights in the encoder
     classifier = create_classifier(encoder, trainable=False)
     classifier.compile(
         optimizer=keras.optimizers.SGD(args.lr, momentum=0.9),
