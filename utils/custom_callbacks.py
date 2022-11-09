@@ -1,6 +1,6 @@
 from tensorflow.keras import backend as K
 from tensorflow.keras.callbacks import TensorBoard
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 
 class WeightsSaver(ModelCheckpoint):
