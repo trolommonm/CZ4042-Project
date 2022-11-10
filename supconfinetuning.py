@@ -94,22 +94,6 @@ def train(fold, args, output_dir):
                    callbacks=[model_checkpoint_callback, tensorboard_callback, csv_callback, lr_scheduler])
 
 
-    # perform 20 epochs of finetuning by unfreezing the last 4 convolutional layers in ResNet18
-    for l in classifier.layers[1].layers[1].layers[-21:]:
-        l.trainable = True
-
-    classifier.compile(
-        optimizer=keras.optimizers.SGD(args.lr / 10, momentum=0.9),
-        loss=keras.losses.BinaryCrossentropy(from_logits=False),
-        metrics=["accuracy"]
-    )
-    classifier.fit(ad_train_ds,
-                   epochs=20,
-                   steps_per_epoch=ad_num_train // args.bs,
-                   validation_data=ad_val_ds,
-                   callbacks=[model_checkpoint_callback, tensorboard_callback, CSVLogger(os.path.join(output_dir, "training1.log"))])
-
-
 def main(args):
     datetime_now = datetime.now().strftime("%Y%m%d-%H%M%S")
 
