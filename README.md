@@ -8,7 +8,10 @@
   * [Prerequisites](#prerequisites)
   * [Project Structure](#installation)
 - [Usage](#eyes-usage)
-- [Acknowledgements](#gem-acknowledgements)
+  * [Experiment 1: Levi Hassner](experiment-1-levi-hassner)
+  * [Experiment 2: Transfer Learning and Fine-tuning](experiment-2-transfer-learning-and-fine-tuning)
+  * [Experiment 3: Supervised Contrastive Learning](experiment-3-supervised-contrastive-learning)
+- [Acknowledgements](#acknowledgements)
 
 
 <!-- About the Project -->
