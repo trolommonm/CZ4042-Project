@@ -98,6 +98,9 @@ def train(fold, args, output_dir):
 
 
 def main(args):
+    if args.mixed_precision:
+        tf.keras.mixed_precision.set_global_policy("mixed_float16")
+
     datetime_now = datetime.now().strftime("%Y%m%d-%H%M%S")
     for i in range(5):
         output_dir = os.path.join("./output/levihassner/", datetime_now, f"fold_{i}")
@@ -115,5 +118,6 @@ if __name__ == "__main__":
     parser.add_argument("-bs", type=int, default=64, help="batch size")
     parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
     parser.add_argument("--augment", type=bool, default=False, help="apply image augmentation")
+    parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
 
     main(parser.parse_args())

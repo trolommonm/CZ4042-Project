@@ -89,6 +89,9 @@ def train(fold, args, output_dir):
 
 
 def main(args):
+    if args.mixed_precision:
+        tf.keras.mixed_precision.set_global_policy("mixed_float16")
+
     datetime_now = datetime.now().strftime("%Y%m%d-%H%M%S")
     for i in range(5):
         output_dir = os.path.join("./output/finetuning/", datetime_now, f"fold_{i}")
@@ -107,5 +110,6 @@ if __name__ == "__main__":
     parser.add_argument("--num-epochs", type=int, default=100, help="number of epochs")
     parser.add_argument("--warmup-lr", type=float, default=0.01, help="learning rate for warm up phase")
     parser.add_argument("--finetune-lr", type=float, default=0.001, help="learning rate for finetuning phase")
+    parser.add_argument("-mp", "--mixed-precision", type=bool, default=True, help="mixed precision training")
 
     main(parser.parse_args())

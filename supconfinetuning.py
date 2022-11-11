@@ -55,6 +55,9 @@ def create_classifier(encoder, trainable=True):
 
 
 def train(fold, args, output_dir):
+    if args.mixed_precision:
+        tf.keras.mixed_precision.set_global_policy("mixed_float16")
+
     ad_train_ds, ad_val_ds = load_data(fold, args.bs)
     ad_num_train, ad_num_val = get_adience_num_images(fold)
 
